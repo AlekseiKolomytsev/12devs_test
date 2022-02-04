@@ -1,0 +1,29 @@
+version: '2.4'
+services:
+  db:
+    image: mariadb:10.5
+    working_dir: /application
+    command: [mysqld]
+    volumes:
+      - .database:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=ROOT
+    ports:
+      - 3306:3306
+
+  nginx:
+    image: nginx:stable-alpine
+    ports:
+      - 80:80
+    volumes:
+      - ./sites/:/var/www/:ro
+      - ./.docker/nginx/conf.d/:/etc/nginx/conf.d/:ro
+    depends_on:
+      - php-fpm
+
+  php-fpm:
+    image: php:5.6-fpm
+    depends_on:
+      - db
+    volumes:
+      - ./sites/:/var/www/
